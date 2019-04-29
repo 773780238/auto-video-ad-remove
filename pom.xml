@@ -29,6 +29,19 @@
       <artifactId>commons-math3</artifactId>
       <version>3.6.1</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.googlecode.javacpp/javacpp -->
+    <dependency>
+      <groupId>com.googlecode.javacpp</groupId>
+      <artifactId>javacpp</artifactId>
+      <version>0.7</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.googlecode.javacv/javacv -->
+    <dependency>
+      <groupId>com.googlecode.javacv</groupId>
+      <artifactId>javacv</artifactId>
+      <version>0.</version>
+    </dependency>
   </dependencies>
 
   <build>

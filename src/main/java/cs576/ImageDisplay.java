@@ -10,7 +10,7 @@ import javax.swing.*;
 
 
 public class ImageDisplay {
-    private static int countdown = PlaySound.countdown;
+    private static int countdown = PlaySound.countdown; // todo
     public static int adsVideoComeIn = countdown;
     private static boolean adsHasCame = false;
     private static double shreshold = 1.05;
@@ -39,7 +39,6 @@ public class ImageDisplay {
 
             long len = frameLength;
             byte[] bytes = new byte[(int) len];
-
 
             synchronized (lock) {
 
@@ -103,7 +102,6 @@ public class ImageDisplay {
                 }
                 lock.notify();
             }
-
             raf.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -112,13 +110,10 @@ public class ImageDisplay {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     public static void showIms() {
         // Use label to display the image
-
-
         lbIm1.setIcon(new ImageIcon(imgOne));
 
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -134,10 +129,7 @@ public class ImageDisplay {
 
         frame.pack();
         frame.setVisible(true);
-
-
     }
-
 
     public static void main(String[] args) {
         //audioThread start
@@ -161,31 +153,22 @@ class WaveThread extends Thread {
     }
 
     public void run() {
-
         // get the command line parameters
         if (args.length < 2) {
             System.err.println("usage: java -jar PlayWaveFile.jar [filename]");
             return;
-        } else {
-            System.out.println("the input path");
-            System.out.println(args[0]);
-            System.out.println(args[1]);
         }
         String filename = args[1];
-
         // opens the inputStream
         FileInputStream inputStream;
         try {
             inputStream = new FileInputStream(filename);
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return;
         }
-
         // initializes the playSound Object
         PlaySound playSound = new PlaySound(inputStream, lock);
-
         // plays the sound
         try {
             playSound.play();
