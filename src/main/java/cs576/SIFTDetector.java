@@ -29,7 +29,7 @@ public class SIFTDetector {
     public SIFTDetector(String icon1, String icon2) {
         featureDetector = FeatureDetector.create(FeatureDetector.SIFT);
         descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
-        descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
+        descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.BRUTEFORCE_L1);
 
         Mat iconImage1 = Highgui.imread(icon1, Highgui.CV_LOAD_IMAGE_COLOR);
         Mat iconImage2 = Highgui.imread(icon2, Highgui.CV_LOAD_IMAGE_COLOR);

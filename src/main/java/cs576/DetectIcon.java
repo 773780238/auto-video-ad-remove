@@ -9,6 +9,9 @@ import javax.swing.*;
 
 import cs576.SIFTDetector;
 
+// todo: add specific color to detect: hsv
+// todo: search in ROI
+
 public class DetectIcon {
     static GridBagLayout gLayout = new GridBagLayout();
     static GridBagConstraints c = new GridBagConstraints();
@@ -21,6 +24,9 @@ public class DetectIcon {
     private String outputPath = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\LogoDetectResult\\";
     private SIFTDetector detector;
     private String imgPath;
+
+    private int dynamicInterval = 15;
+    private int logoCountDown = 3;
 
     /**
      * Read Image RGB
@@ -53,12 +59,22 @@ public class DetectIcon {
                         ind++;
                     }
                 }
-                if (frame % 15 == 0) {
+
+                if (frame % dynamicInterval == 0) {
                     int adFlag = detector.detectIcon(imgOne);
                     if ((prevFlag == adFlag) && (adFlag == 1 || adFlag == 2)) {
-                        System.out.println("Frame: " + frame + " find icon " + adFlag);
-                        File outputfile = new File(outputPath + "image_" + frame + "_" + adFlag + ".jpg");
-                        ImageIO.write(imgOne, "jpg", outputfile);
+                        logoCountDown--;
+                        dynamicInterval = 5;
+                        System.out.println(logoCountDown);
+                        if (logoCountDown == 0) {
+                            System.out.println("Frame: " + frame + " find icon " + adFlag);
+                            File outputfile = new File(outputPath + "image_" + frame + "_" + adFlag + ".jpg");
+                            ImageIO.write(imgOne, "jpg", outputfile);
+                            logoCountDown = 3;
+                        }
+                    } else {
+                        logoCountDown = logoCountDown < 3 ? logoCountDown++ : 3;
+                        dynamicInterval = 15;
                     }
                     prevFlag = adFlag;
                 }

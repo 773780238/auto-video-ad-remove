@@ -10,7 +10,7 @@ import javax.swing.*;
 
 
 public class ImageDisplay {
-    private static int countdown = PlaySound.countdown; // todo
+    private static int countdown = PlaySound.countdown;
     public static int adsVideoComeIn = countdown;
     private static boolean adsHasCame = false;
     private static double shreshold = 1.05;
@@ -41,7 +41,6 @@ public class ImageDisplay {
             byte[] bytes = new byte[(int) len];
 
             synchronized (lock) {
-
                 int frame = 0;
                 while (raf.read(bytes) != -1) {
                     int ind = 0;
@@ -49,7 +48,6 @@ public class ImageDisplay {
 
                     for (int y = 0; y < height; y++) {
                         for (int x = 0; x < width; x++) {
-
                             byte r = bytes[ind];
                             byte g = bytes[ind + height * width];
                             byte b = bytes[ind + height * width * 2];
@@ -97,8 +95,6 @@ public class ImageDisplay {
                     showIms();
                     lock.notify();
                     lock.wait();
-
-
                 }
                 lock.notify();
             }
