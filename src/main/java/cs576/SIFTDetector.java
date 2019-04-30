@@ -47,15 +47,11 @@ public class SIFTDetector {
         descriptorExtractor.compute(m, objectKeyPoints, objectDescriptors);
     }
 
-    public int detectIcon(BufferedImage img) {
+    public boolean detectIcon(BufferedImage img, int choice) {
         Mat m = Utils.img2Mat(img);
-        if (detectIconImplementation(m, 1)) {
-            return 1;
-        } else if (detectIconImplementation(m, 2)) {
-            return 2;
-        } else {
-            return -1;
-        }
+        if (choice == 1) return detectIconImplementation(m, 1);
+        if (choice == 2) return detectIconImplementation(m, 2);
+        return false;
     }
 
     private boolean detectIconImplementation(Mat m, int choices) {
@@ -83,7 +79,7 @@ public class SIFTDetector {
 
     private void findGoodMatches(List<MatOfDMatch> matches, LinkedList<DMatch> goodMatchesList, float nndrRatio) {
         //find the good match
-        for(MatOfDMatch matofDMatch: matches){
+        for (MatOfDMatch matofDMatch : matches) {
             DMatch[] dmatcharray = matofDMatch.toArray();
             DMatch m1 = dmatcharray[0];
             DMatch m2 = dmatcharray[1];

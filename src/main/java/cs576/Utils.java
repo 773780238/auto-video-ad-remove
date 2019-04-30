@@ -82,6 +82,9 @@ public final class Utils {
         return img;
     }
 
+    public static <T> T swap(T a, T b){
+        return a;
+    }
 
     public static void main(String[] args){
         String testPath = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\sifttest\\trojan.rgb";
