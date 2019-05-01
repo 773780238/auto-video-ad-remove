@@ -6,6 +6,7 @@ import cs576.sound.playWave.PlayWaveException;
 import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.ArrayList;
 import javax.swing.*;
 
 
@@ -14,11 +15,8 @@ public class AppendAdRGB {
     static int height = ImageDisplay.height;
 
     static String RGBOutPath = AppendAd.RGBOutPath;
-    /**
-     * Read Image RGB
-     * Reads the image of given width and height at the given imgPath into the provided BufferedImage.
-     */
-    public static void writeRGB(String imgPath, String ad1RGBPath, int ad1Pos, String ad2RGBPath, int ad2Pos) {
+
+    public static void writeRGB(String imgPath, String ad1RGBPath, ArrayList<Integer> adsStart, String ad2RGBPath, ArrayList<Integer> adsEnd) {
         try {
             File file = new File(imgPath);
             RandomAccessFile raf = new RandomAccessFile(file, "r");
@@ -29,11 +27,23 @@ public class AppendAdRGB {
             FileOutputStream outputStream = new FileOutputStream(RGBOutPath);
             int frame = 0;
             while (raf.read(bytes) != -1) {
-                int ind = 0;
-                frame++;
                 outputStream.write(bytes);
-                if (frame == ad1Pos) writeAd(outputStream, ad1RGBPath);
-                if (frame == ad2Pos) writeAd(outputStream, ad2RGBPath);
+                if (adsStart.get(0) <= frame && frame <= adsEnd.get(0)) {
+                    while (raf.read(bytes) != -1) frame++;
+                }
+                if (frame == adsEnd.get(0) + 1) {
+                    writeAd(outputStream, ad1RGBPath);
+                    System.out.println("remove and write the ad1 to file finish");
+                }
+
+                if (adsStart.get(1) <= frame && frame <= adsEnd.get(1)) {
+                    while (raf.read(bytes) != -1) frame++;
+                }
+                if (frame == adsEnd.get(1) + 1) {
+                    writeAd(outputStream, ad2RGBPath);
+                    System.out.println("remove and write the ad1 to file finish");
+                }
+                frame++;
             }
             raf.close();
             outputStream.close();
@@ -49,11 +59,9 @@ public class AppendAdRGB {
             raf.seek(0);
             int frameLength = width * height * 3;
             byte[] bytes = new byte[frameLength];
-            int frame = 0;
             while (raf.read(bytes) != -1) {
                 outputStream.write(bytes);
             }
-            System.out.println("write the ad output file finish");
             raf.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,7 +76,6 @@ public class AppendAdRGB {
             System.err.println("usage: java imgSource ad1RGBPath ad2RGBPath");
             return;
         }
-        writeRGB(args[0],args[1],5260,args[2],2065);
     }
 }
 

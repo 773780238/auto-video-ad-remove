@@ -14,10 +14,6 @@ public class TestRGB {
     static int height = 270;
     static BufferedImage imgOne;
 
-    /**
-     * Read Image RGB
-     * Reads the image of given width and height at the given imgPath into the provided BufferedImage.
-     */
     private static void readImageRGB(int width, int height, String imgPath) {
         try {
             int frameLength = width * height * 3;

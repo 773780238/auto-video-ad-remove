@@ -7,9 +7,6 @@ import javax.imageio.ImageIO;
 
 import cs576.SIFTDetector;
 
-// todo: add specific color to detect: hsv
-// todo: search in ROI
-
 public class DetectIcon {
     static int width = ImageDisplay.width;
     static int height = ImageDisplay.height;
@@ -24,15 +21,27 @@ public class DetectIcon {
 
     private ArrayList<Integer> ad1;
     private ArrayList<Integer> ad2;
-    int ad1Pos = -1;
-    int ad2Pos = -1;
+    private ArrayList<ArrayList<Integer>> adSet;
+    private int[] adPos = new int[]{0, -1, -1};
 
-    /**
-     * Read Image RGB
-     * Reads the image of given width and height at the given imgPath into the provided BufferedImage.
-     */
+    //Constructor
+    public DetectIcon(String[] args) {
+        if (args.length != 3) {
+            for (String s : args) {
+                System.out.println(s);
+            }
+            System.err.println("usage: java video.rgb icon1.path, icon2.path");
+            return;
+        }
+        imgPath = args[0];
+        detector = new SIFTDetector(args[1], args[2]);
 
-    private void readImageRGB() {
+        for (int i = 0; i < 3; i++) {
+            adSet.add(new ArrayList<Integer>());
+        }
+    }
+
+    private void readAndDetect() {
         try {
             long frameLength = width * height * 3;
 
@@ -50,29 +59,26 @@ public class DetectIcon {
                 raf.seek(frame * frameLength);
                 //read frame
                 imgOne = Utils.bytes2Img(bytes);
-
                 // detect the icon in frame
                 int adFlag = -1;
-                if (ad1Pos == -1 && detector.detectIcon(imgOne, 1)) {
+                if (adPos[1] == -1 && detector.detectIcon(imgOne, 1)) {
                     adFlag = 1;
-                } else if (ad2Pos == -1 && detector.detectIcon(imgOne, 2)) {
+                } else if (adPos[2] == -1 && detector.detectIcon(imgOne, 2)) {
                     adFlag = 2;
                 }
-                System.out.println("Frame: " + frame + "adFlag "+ adFlag);
-
+                System.out.println("Frame: " + frame + "adFlag " + adFlag);
                 //find the postion of the ad by detect a set of frame
+                //only three continuous frames contains the same logo should be add in to corresponed list
                 if ((prevFlag == adFlag) && (adFlag == 1 || adFlag == 2)) {
                     logoCountDown--;
                     dynamicInterval = 3;
                     System.out.println(logoCountDown);
+                    // detect the same logo in continuous 3 frame
                     if (logoCountDown == 0) {
-                        if (adFlag == 1) {
-                            ad1.add(frame);
-                            calculateAd1Pos();
-                        } else {
-                            ad2.add(frame);
-                            calculateAd2Pos();
-                        }
+                        //add frame to target ad list and do continuous frame analysis
+                        adSet.get(adFlag).add(frame);
+                        calculateAdPos(adFlag);
+                        //write the detected frame
                         System.out.println("Frame: " + frame + " find icon " + adFlag);
                         File outputfile = new File(outputPath + "image_" + frame + "_" + adFlag + ".jpg");
                         ImageIO.write(imgOne, "jpg", outputfile);
@@ -88,38 +94,16 @@ public class DetectIcon {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public DetectIcon(String[] args) {
-        if (args.length != 3) {
-            for (String s : args) {
-                System.out.println(s);
-            }
-            System.err.println("usage: java video.rgb icon1.path, icon2.path");
-            return;
-        }
-        imgPath = args[0];
-        detector = new SIFTDetector(args[1], args[2]);
-        ad1 = new ArrayList<>();
-        ad2 = new ArrayList<>();
-    }
-
-
-    public void calculateAd1Pos() {
-        if (ad1Pos == -1 && ad1.size() > 1) {
-            int lastIdx = ad1.size() - 1;
-            if (ad1.get(lastIdx) - ad1.get(lastIdx - 1) <= 30) {
-                ad1Pos = ad1.get(lastIdx - 1);
-            }
-        }
-    }
-
-    public void calculateAd2Pos() {
-        if (ad2Pos == -1 && ad2.size() > 1) {
-            int lastIdx = ad2.size() - 1;
-            if (ad2.get(lastIdx) - ad2.get(lastIdx - 1) <= 30) {
-                ad2Pos = ad2.get(lastIdx - 1);
+    //check if the detected frame is continuous
+    public void calculateAdPos(int adNum) {
+        if (adPos[adNum] == -1 && adSet.get(adNum).size() > 1) {
+            int lastIdx = adSet.get(adNum).size() - 1;
+            if (adSet.get(adNum).get(lastIdx) - adSet.get(adNum).get(lastIdx - 1) <= 30) {
+                adPos[adNum] = adSet.get(adNum).get(lastIdx - 1);
             }
         }
     }
@@ -127,10 +111,9 @@ public class DetectIcon {
     public static void main(String[] args) {
         DetectIcon d = new DetectIcon(args);
         DetectIcon.imgOne = new BufferedImage(ImageDisplay.width, ImageDisplay.height, BufferedImage.TYPE_INT_RGB);
-        d.readImageRGB();
-        System.out.println("The first Ad at frame:" + d.ad1Pos);
-        System.out.println("The second Ad at frame:" + d.ad2Pos);
-        AppendAd.append2AdByPos(d.ad1Pos,d.ad2Pos);
+        d.readAndDetect();
+        System.out.println("The first Ad at frame:" + d.adPos[1]);
+        System.out.println("The second Ad at frame:" + d.adPos[2]);
     }
 }
 

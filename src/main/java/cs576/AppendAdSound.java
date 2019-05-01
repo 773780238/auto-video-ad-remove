@@ -4,6 +4,7 @@ import java.io.*;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import javax.sound.sampled.*;
 
@@ -12,17 +13,21 @@ public class AppendAdSound {
     static private final int EXTERNAL_BUFFER_SIZE = 3200;
     static String WavOutPath = AppendAd.WavOutPath;
 
-    public static void writeSound(String wavPath, String ad1WavPath, int ad1Pos, String ad2WavPath, int ad2Pos) {
+    public static void writeSound(String wavPath, String ad1WavPath, ArrayList<Integer> adsStart, String ad2WavPath, ArrayList<Integer> adsEnd) {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(wavPath));
             AudioFormat srcFormat = audioInputStream.getFormat();
 
             //allocate bytes and read wav samples
-            byte[] bytesIn1 = new byte[EXTERNAL_BUFFER_SIZE * ad1Pos];
-            byte[] bytesIn2 = new byte[EXTERNAL_BUFFER_SIZE * (ad2Pos - ad1Pos)];
-            byte[] bytesIn3 = new byte[(int) ((audioInputStream.getFrameLength() / 1600 - ad2Pos) * EXTERNAL_BUFFER_SIZE)];
+            byte[] bytesIn1 = new byte[EXTERNAL_BUFFER_SIZE * adsStart.get(0)];
+            byte[] bytesIn2 = new byte[EXTERNAL_BUFFER_SIZE * (adsStart.get(1) - adsEnd.get(0))];
+            byte[] bytesIn3 = new byte[(int) ((audioInputStream.getFrameLength() / 1600 - adsEnd.get(1)) * EXTERNAL_BUFFER_SIZE)];
+
+            //read the audio in sequence, drop extra Wav frame
             audioInputStream.read(bytesIn1);
+            audioInputStream.read(new byte[adsEnd.get(0) - adsStart.get(0)]);
             audioInputStream.read(bytesIn2);
+            audioInputStream.read(new byte[adsEnd.get(1) - adsStart.get(1)]);
             audioInputStream.read(bytesIn3);
 
             //convert the bytes of samples to audioInput
@@ -70,6 +75,5 @@ public class AppendAdSound {
             System.err.println("usage: java soundSource ad1SoundPath ad2SoundPath");
             return;
         }
-        writeSound(args[0], args[1], 5260, args[2], 2065);
     }
 }

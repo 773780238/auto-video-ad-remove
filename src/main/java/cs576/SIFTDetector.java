@@ -9,10 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class SIFTDetector {
-    static int width = ImageDisplay.width;
-    static int height = ImageDisplay.height;
-    static int counter = 0;
-
     private MatOfKeyPoint Icon1KeyPoints;
     private MatOfKeyPoint Icon1Descriptors;
     private MatOfKeyPoint Icon2KeyPoints;
@@ -57,37 +53,25 @@ public class SIFTDetector {
     private boolean detectIconImplementation(Mat m, int choices) {
         MatOfKeyPoint senceKeyPoints = new MatOfKeyPoint();
         MatOfKeyPoint senceDescriptors = new MatOfKeyPoint();
-        MatOfKeyPoint matchedDescriptor;
 
         getDescripter(m, senceKeyPoints, senceDescriptors);
+        if (senceDescriptors.empty()) {
+            return false;
+        }
+
+        List<MatOfDMatch> matches = new LinkedList<MatOfDMatch>();
+        LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
         if (choices == 1) {
-            matchedDescriptor = Icon1Descriptors;
+            descriptorMatcher.knnMatch(Icon1Descriptors, senceDescriptors, matches, 2);
+            findGoodMatches(matches, goodMatchesList, 0.75f);
+            return goodMatchesList.size() > 10;
         } else if (choices == 2) {
-            matchedDescriptor = Icon2Descriptors;
+            descriptorMatcher.knnMatch(Icon2Descriptors, senceDescriptors, matches, 2);
+            findGoodMatches(matches, goodMatchesList, 0.65f);
+            return goodMatchesList.size() > 10;
         } else {
             return false;
         }
-        if(senceDescriptors.empty()){
-            return false;
-        }
-        List<MatOfDMatch> matches = new LinkedList<MatOfDMatch>();
-
-        if(choices == 1){
-            descriptorMatcher.knnMatch(matchedDescriptor, senceDescriptors, matches, 2);
-
-            LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
-            findGoodMatches(matches, goodMatchesList, 0.75f);
-            return goodMatchesList.size() > 10;
-        }else if (choices == 2){
-            descriptorMatcher.knnMatch(matchedDescriptor, senceDescriptors, matches, 2);
-
-            LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
-            findGoodMatches(matches, goodMatchesList, 0.65f);
-            return goodMatchesList.size() > 10;
-        }else{
-            return false;
-        }
-
     }
 
     private void findGoodMatches(List<MatOfDMatch> matches, LinkedList<DMatch> goodMatchesList, float nndrRatio) {
