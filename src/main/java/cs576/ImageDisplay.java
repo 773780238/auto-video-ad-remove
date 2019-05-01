@@ -262,6 +262,10 @@ public class ImageDisplay extends Application implements Runnable {
         int frameNum = countFrameNum(args[0]);
         arrayIsAds = new boolean[frameNum];
         ImageDisplay.args = args;
+        if (args.length < 3) {
+            System.err.println("parameters: .rgb .wav waveThreshold");
+        }
+        int waveThreshold = Integer.parseInt(args[2]);
         //FXThread start
         Thread myThread = new Thread(new ImageDisplay());
         myThread.start();
@@ -272,7 +276,7 @@ public class ImageDisplay extends Application implements Runnable {
             e.printStackTrace();
         }
         //audioThread start
-        WaveThread waveThread = new WaveThread(args, lock, controller);
+        WaveThread waveThread = new WaveThread(args, lock, controller, waveThreshold);
         waveThread.start();
         //videoThread start
         VideoThread videoThread = new VideoThread(args, lock);
@@ -303,11 +307,13 @@ class WaveThread extends Thread {
     private Object lock;
     private String args[];
     private Controller controller;
+    private int waveThreshold;
 
-    WaveThread(String args[], Object lock, Controller controller) {
+    WaveThread(String args[], Object lock, Controller controller, int waveThreshold) {
         this.args = args;
         this.lock = lock;
         this.controller = controller;
+        this.waveThreshold = waveThreshold;
     }
 
     public void run() {
@@ -334,7 +340,7 @@ class WaveThread extends Thread {
         }
 
         // initializes the playSound Object
-        PlaySound playSound = new PlaySound(inputStream, lock, controller);
+        PlaySound playSound = new PlaySound(inputStream, lock, controller, waveThreshold);
 
         // plays the sound
         try {
