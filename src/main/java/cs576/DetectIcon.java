@@ -13,6 +13,8 @@ public class DetectIcon {
     static BufferedImage imgOne;
 
     private String outputPath = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\LogoDetectResult\\";
+    private String logo1Path = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\BrandImages\\ae_logo.bmp";
+    private String logo2Path = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\BrandImages\\hrc_logo.bmp";
     private SIFTDetector detector;
     private String imgPath;
 
@@ -21,27 +23,20 @@ public class DetectIcon {
 
     private ArrayList<Integer> ad1;
     private ArrayList<Integer> ad2;
-    private ArrayList<ArrayList<Integer>> adSet;
-    private int[] adPos = new int[]{0, -1, -1};
+    private ArrayList<ArrayList<Integer>> adSet = new ArrayList<ArrayList<Integer>>();
+    public int[] adPos = new int[]{0, -1, -1};
 
     //Constructor
     public DetectIcon(String[] args) {
-        if (args.length != 3) {
-            for (String s : args) {
-                System.out.println(s);
-            }
-            System.err.println("usage: java video.rgb icon1.path, icon2.path");
-            return;
-        }
         imgPath = args[0];
-        detector = new SIFTDetector(args[1], args[2]);
+        detector = new SIFTDetector(logo1Path, logo2Path);
 
         for (int i = 0; i < 3; i++) {
             adSet.add(new ArrayList<Integer>());
         }
     }
 
-    private void readAndDetect() {
+    public void readAndDetect() {
         try {
             long frameLength = width * height * 3;
 
@@ -66,13 +61,13 @@ public class DetectIcon {
                 } else if (adPos[2] == -1 && detector.detectIcon(imgOne, 2)) {
                     adFlag = 2;
                 }
-                System.out.println("Frame: " + frame + "adFlag " + adFlag);
+                //System.out.println("Frame: " + frame + "adFlag " + adFlag);
                 //find the postion of the ad by detect a set of frame
                 //only three continuous frames contains the same logo should be add in to corresponed list
                 if ((prevFlag == adFlag) && (adFlag == 1 || adFlag == 2)) {
                     logoCountDown--;
                     dynamicInterval = 3;
-                    System.out.println(logoCountDown);
+                    //System.out.println(logoCountDown);
                     // detect the same logo in continuous 3 frame
                     if (logoCountDown == 0) {
                         //add frame to target ad list and do continuous frame analysis
@@ -80,8 +75,8 @@ public class DetectIcon {
                         calculateAdPos(adFlag);
                         //write the detected frame
                         System.out.println("Frame: " + frame + " find icon " + adFlag);
-                        File outputfile = new File(outputPath + "image_" + frame + "_" + adFlag + ".jpg");
-                        ImageIO.write(imgOne, "jpg", outputfile);
+//                        File outputfile = new File(outputPath + "image_" + frame + "_" + adFlag + ".jpg");
+//                        ImageIO.write(imgOne, "jpg", outputfile);
                         logoCountDown = 3;
                     }
                 } else {

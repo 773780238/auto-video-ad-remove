@@ -20,15 +20,30 @@ public class AppendAdSound {
 
             //allocate bytes and read wav samples
             byte[] bytesIn1 = new byte[EXTERNAL_BUFFER_SIZE * adsStart.get(0)];
-            byte[] bytesIn2 = new byte[EXTERNAL_BUFFER_SIZE * (adsStart.get(1) - adsEnd.get(0))];
-            byte[] bytesIn3 = new byte[(int) ((audioInputStream.getFrameLength() / 1600 - adsEnd.get(1)) * EXTERNAL_BUFFER_SIZE)];
 
+            byte[] bytesIn2 = new byte[EXTERNAL_BUFFER_SIZE * (adsStart.get(1) - adsEnd.get(0))];
+//            System.out.println(audioInputStream.getFrameLength() / 1600); //300
+//            System.out.println(srcFormat.getSampleRate()); //48000
+//            System.out.println(audioInputStream.getFrameLength() / srcFormat.getSampleRate()); //300
+//            System.out.println(adsEnd.get(1)); // 8998
+
+            boolean notEnd = true;
+            if ((audioInputStream.getFrameLength() / 1600 - adsEnd.get(1)) <= 0) {
+                notEnd = false;
+            }
+            byte[] bytesIn3 = new byte[0];
+            if (notEnd) {
+                bytesIn3 = new byte[(int) ((audioInputStream.getFrameLength() / 1600 - adsEnd.get(1)) * EXTERNAL_BUFFER_SIZE)];
+            }
             //read the audio in sequence, drop extra Wav frame
             audioInputStream.read(bytesIn1);
             audioInputStream.read(new byte[adsEnd.get(0) - adsStart.get(0)]);
             audioInputStream.read(bytesIn2);
             audioInputStream.read(new byte[adsEnd.get(1) - adsStart.get(1)]);
-            audioInputStream.read(bytesIn3);
+
+            if (notEnd) {
+                audioInputStream.read(bytesIn3);
+            }
 
             //convert the bytes of samples to audioInput
             AudioInputStream audioSeg1 = new AudioInputStream(new ByteArrayInputStream(bytesIn1), srcFormat, bytesIn1.length);
@@ -41,8 +56,9 @@ public class AppendAdSound {
             AudioInputStream in = audioAppender(audioSeg1, adSeg1);
             in = audioAppender(in, audioSeg2);
             in = audioAppender(in, adSeg2);
-            in = audioAppender(in, audioSeg3);
-
+            if (notEnd) {
+                in = audioAppender(in, audioSeg3);
+            }
             //write output file
             FileOutputStream outputStream = new FileOutputStream(WavOutPath);
             AudioSystem.write(in, AudioFileFormat.Type.WAVE, outputStream);

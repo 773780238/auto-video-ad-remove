@@ -13,7 +13,8 @@ import javax.swing.*;
 public class AppendAdRGB {
     static int width = ImageDisplay.width;
     static int height = ImageDisplay.height;
-
+    //    static int frameNum = ImageDisplay.frameNum;
+    static int frameNum = ImageDisplay.frameNum;
     static String RGBOutPath = AppendAd.RGBOutPath;
 
     public static void writeRGB(String imgPath, String ad1RGBPath, ArrayList<Integer> adsStart, String ad2RGBPath, ArrayList<Integer> adsEnd) {
@@ -26,22 +27,24 @@ public class AppendAdRGB {
 
             FileOutputStream outputStream = new FileOutputStream(RGBOutPath);
             int frame = 0;
-            while (raf.read(bytes) != -1) {
+            while (raf.read(bytes) != -1 && frame < frameNum) {
                 outputStream.write(bytes);
                 if (adsStart.get(0) <= frame && frame <= adsEnd.get(0)) {
-                    while (raf.read(bytes) != -1) frame++;
-                }
-                if (frame == adsEnd.get(0) + 1) {
+                    while (raf.read(bytes) != -1) {
+                        frame++;
+                        if (frame > adsEnd.get(0)) break;
+                    }
                     writeAd(outputStream, ad1RGBPath);
                     System.out.println("remove and write the ad1 to file finish");
                 }
 
                 if (adsStart.get(1) <= frame && frame <= adsEnd.get(1)) {
-                    while (raf.read(bytes) != -1) frame++;
-                }
-                if (frame == adsEnd.get(1) + 1) {
+                    while (raf.read(bytes) != -1) {
+                        frame++;
+                        if (frame > adsEnd.get(1) || frame > frameNum) break;
+                    }
                     writeAd(outputStream, ad2RGBPath);
-                    System.out.println("remove and write the ad1 to file finish");
+                    System.out.println("remove and write the ad2 to file finish");
                 }
                 frame++;
             }

@@ -3,21 +3,16 @@ package cs576;
 import cs576.sound.playWave.PlaySound;
 import cs576.sound.playWave.PlayWaveException;
 import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.ArrayList;
-import javax.swing.*;
 
 
 public class ImageDisplay extends Application implements Runnable {
@@ -37,6 +32,8 @@ public class ImageDisplay extends Application implements Runnable {
     static boolean[] arrayIsAds;
     static ArrayList<Integer> adsStart = new ArrayList<>();
     static ArrayList<Integer> adsEnd = new ArrayList<>();
+    static boolean isDetect = false;
+    static int frameNum;
 
     public static void getAdsLocation() {
         int adsMinimumLen = 200;
@@ -60,6 +57,18 @@ public class ImageDisplay extends Application implements Runnable {
                 }
             }
         }
+
+        //expand the range of Ads
+        if (adsStart.size() != adsEnd.size()) {
+            System.err.println("adsStart size does not match to adsEnd size");
+        }
+        for (int i = 0; i < adsStart.size(); i++) {
+            int temp = adsStart.get(i) - 10 > 0 ? adsStart.get(i) - 10 : 0;
+            adsStart.set(i, temp);
+
+            temp = adsEnd.get(i) + 10 > frameNum ? frameNum : adsEnd.get(i) + 10;
+            adsEnd.set(i, temp);
+        }
     }
 
     public static void processArrayIsAds() {
@@ -68,12 +77,7 @@ public class ImageDisplay extends Application implements Runnable {
         int windowSize = 200;
         int consecutive = 4;
         for (int i = 0; i < arrayIsAds.length; i++) {
-
-
             int k = i;
-
-            ////
-
             for (; k < arrayIsAds.length && k < i + consecutive; k++) {
                 if (!arrayIsAds[k]) {
                     break;
@@ -98,13 +102,10 @@ public class ImageDisplay extends Application implements Runnable {
                     }
                 }
                 if (i >= consecutiveArray.length - 2) break;
-
             }
 
         }
-
         arrayIsAds = consecutiveArray;
-
     }
 
     public static int countFrameNum(String imgPath) {
@@ -163,13 +164,7 @@ public class ImageDisplay extends Application implements Runnable {
             }
         }
         showIms();
-        while (!controller.isTextPlay) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 
     /**
@@ -195,7 +190,6 @@ public class ImageDisplay extends Application implements Runnable {
                   /*  if(controller.jumpButtonClicked){
                         raf.seek(Integer.parseInt(controller.frameTextField.getText())*len);
                         frame = Integer.parseInt(controller.frameTextField.getText());
-
                     }*/
                     int ind = 0;
                     frame++;
@@ -214,21 +208,28 @@ public class ImageDisplay extends Application implements Runnable {
                             ind++;
                         }
                     }
+                    if (isDetect) {
+                        detectAdsDisplay(frame);
+                    } else {
+                        showIms();
+                    }
 
-                    detectAdsDisplay(frame);
                     lock.notify();
-                    lock.wait(10000);
+                    lock.wait();
 
 
                 }
-                processArrayIsAds();
-                getAdsLocation();
-                System.out.println("::: result :::");
-                for (int i = 0; i < adsStart.size(); i++)
-                    System.out.println("adsStart: " + adsStart.get(i));
+                if (isDetect) {
+                    processArrayIsAds();
+                    getAdsLocation();
+                    System.out.println("::: result :::");
+                    for (int i = 0; i < adsStart.size(); i++)
+                        System.out.println("adsStart: " + adsStart.get(i));
 
-                for (int i = 0; i < adsEnd.size(); i++)
-                    System.out.println("adsEnd: " + adsEnd.get(i));
+                    for (int i = 0; i < adsEnd.size(); i++)
+                        System.out.println("adsEnd: " + adsEnd.get(i));
+                }
+
                 lock.notify();
             }
 
@@ -254,30 +255,57 @@ public class ImageDisplay extends Application implements Runnable {
         }
 
         controller.ivFX.setImage(wr);
+        while (!controller.isTextPlay) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-
-    public static void main(String[] args) {
-
-        int frameNum = countFrameNum(args[0]);
+    public static void process(boolean isDetect, String[] args) {
+        ImageDisplay.isDetect = isDetect;
+        frameNum = countFrameNum(args[0]);
         arrayIsAds = new boolean[frameNum];
         ImageDisplay.args = args;
+        if (args.length < 3) {
+            System.err.println("parameters: .rgb .wav waveThreshold");
+        }
+        int waveThreshold = Integer.parseInt(args[2]);
+
+        //audioThread start
+        WaveThread waveThread = new WaveThread(args, lock, controller, waveThreshold);
+        waveThread.start();
+        //videoThread start
+        VideoThread videoThread = new VideoThread(args, lock);
+        videoThread.start();
+
+        try {
+
+            waveThread.join();
+            videoThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
         //FXThread start
         Thread myThread = new Thread(new ImageDisplay());
         myThread.start();
+
 
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //audioThread start
-        WaveThread waveThread = new WaveThread(args, lock, controller);
-        waveThread.start();
-        //videoThread start
-        VideoThread videoThread = new VideoThread(args, lock);
-        videoThread.start();
 
+        process(true, args);
+        args[0] = AppendAd.RGBOutPath;
+        args[1] = AppendAd.WavOutPath;
+        process(false, args);
     }
 
     @Override
@@ -303,11 +331,13 @@ class WaveThread extends Thread {
     private Object lock;
     private String args[];
     private Controller controller;
+    private int waveThreshold;
 
-    WaveThread(String args[], Object lock, Controller controller) {
+    WaveThread(String args[], Object lock, Controller controller, int waveThreshold) {
         this.args = args;
         this.lock = lock;
         this.controller = controller;
+        this.waveThreshold = waveThreshold;
     }
 
     public void run() {
@@ -334,7 +364,7 @@ class WaveThread extends Thread {
         }
 
         // initializes the playSound Object
-        PlaySound playSound = new PlaySound(inputStream, lock, controller);
+        PlaySound playSound = new PlaySound(inputStream, lock, controller, waveThreshold);
 
         // plays the sound
         try {
@@ -372,13 +402,38 @@ class VideoThread extends Thread {
         }
         ImageDisplay.imgOne = new BufferedImage(ImageDisplay.width, ImageDisplay.height, BufferedImage.TYPE_INT_RGB);
         ImageDisplay.readImageRGB(ImageDisplay.width, ImageDisplay.height, args[0], ImageDisplay.imgOne);
+        //iconDetectThread
+        IconDetectThread iconDetectThread = new IconDetectThread(args, lock);
+        iconDetectThread.start();
 
+
+        try {
+            iconDetectThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (ImageDisplay.isDetect)
+            AppendAd.append2AdByPos(ImageDisplay.adsStart, ImageDisplay.adsEnd);
         System.out.println("videoThread killed");
     }
 }
 
+class IconDetectThread extends Thread {
+    private Thread t;
+    private Object lock;
+    private String args[];
 
+    public IconDetectThread(String args[], Object lock) {
+        this.args = args;
+        this.lock = lock;
+    }
 
-
-
-
+    public void run() {
+        DetectIcon iconDetector = new DetectIcon(args);
+        DetectIcon.imgOne = new BufferedImage(ImageDisplay.width, ImageDisplay.height, BufferedImage.TYPE_INT_RGB);
+        iconDetector.readAndDetect();
+        System.out.println("The first Ad at frame:" + iconDetector.adPos[1]);
+        System.out.println("The second Ad at frame:" + iconDetector.adPos[2]);
+        System.out.println("iconDetectThread killed");
+    }
+}

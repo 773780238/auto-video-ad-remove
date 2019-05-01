@@ -28,19 +28,15 @@ public class Controller implements Initializable {
         }
 
     }
-    
-
     public void onJumpButtonClick() {
       /*  if(frameTextField.getText() != null ){
             jumpButtonClicked = true;
         }else{
             frameTextField.setText("0");
         }*/
-
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
     }
 }
