@@ -9,28 +9,24 @@ import java.io.*;
 import javax.swing.*;
 
 
-public class addAdRGB {
+public class AppendAdRGB {
     static int width = ImageDisplay.width;
     static int height = ImageDisplay.height;
 
+    static String RGBOutPath = AppendAd.RGBOutPath;
     /**
      * Read Image RGB
      * Reads the image of given width and height at the given imgPath into the provided BufferedImage.
      */
     public static void writeRGB(String imgPath, String ad1RGBPath, int ad1Pos, String ad2RGBPath, int ad2Pos) {
         try {
-            if (ad1Pos > ad2Pos) {
-                ad2Pos = Utils.swap(ad1Pos, ad1Pos = ad2Pos);
-                ad2RGBPath = Utils.swap(ad1RGBPath, ad1RGBPath = ad2RGBPath);
-            }
-
             File file = new File(imgPath);
             RandomAccessFile raf = new RandomAccessFile(file, "r");
             raf.seek(0);
             int frameLength = width * height * 3;
             byte[] bytes = new byte[frameLength];
 
-            FileOutputStream outputStream = new FileOutputStream("AdOut.rgb");
+            FileOutputStream outputStream = new FileOutputStream(RGBOutPath);
             int frame = 0;
             while (raf.read(bytes) != -1) {
                 int ind = 0;

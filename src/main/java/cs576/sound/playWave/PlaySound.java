@@ -28,7 +28,6 @@ public class PlaySound {
     private Object lock;
     private InputStream waveStream;
 
-    // todo: figure out the meaning of these arguments
     //private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
     private final int EXTERNAL_BUFFER_SIZE = 3200;
     private final int buffersize = 4096;//accuracy of the output frequency

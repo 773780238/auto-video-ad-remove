@@ -25,6 +25,7 @@ public class ImageDisplay {
     static Histogram P = new Histogram(width * height);
     static BufferedImage imgOne;
 
+    private static String targetRGB = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\Videos\\data_test1AD.rgb";
     /**
      * Read Image RGB
      * Reads the image of given width and height at the given imgPath into the provided BufferedImage.
@@ -134,14 +135,16 @@ public class ImageDisplay {
 
         ImageDisplay.frame.getContentPane().setLayout(gLayout);
         ImageDisplay.imgOne = new BufferedImage(ImageDisplay.width, ImageDisplay.height, BufferedImage.TYPE_INT_RGB);
-        readImageRGB(ImageDisplay.width, ImageDisplay.height, args[0], ImageDisplay.imgOne);
+        readImageRGB(ImageDisplay.width, ImageDisplay.height, targetRGB, ImageDisplay.imgOne);
     }
 }
 
 class WaveThread extends Thread {
+
     private Thread t;
     private Object lock;
     private String args[];
+    private static String targetWav = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\Videos\\data_test1AD.wav";
 
     WaveThread(String args[], Object lock) {
         this.args = args;
@@ -154,7 +157,7 @@ class WaveThread extends Thread {
             System.err.println("usage: java -jar PlayWaveFile.jar [filename]");
             return;
         }
-        String filename = args[1];
+        String filename = targetWav;
         // opens the inputStream
         FileInputStream inputStream;
         try {

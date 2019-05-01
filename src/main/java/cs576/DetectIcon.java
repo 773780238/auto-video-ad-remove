@@ -132,6 +132,7 @@ public class DetectIcon {
         d.readImageRGB();
         System.out.println("The first Ad at frame:" + d.ad1Pos);
         System.out.println("The second Ad at frame:" + d.ad2Pos);
+        AppendAd.append2AdByPos(d.ad1Pos,d.ad2Pos);
     }
 }
 
