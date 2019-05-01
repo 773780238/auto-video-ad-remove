@@ -33,7 +33,7 @@ public class PlaySound {
     //private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
     private final int EXTERNAL_BUFFER_SIZE = 3200;
     private final int buffersize = 4096;//accuracy of the output frequency
-    private final int threshold = 20000;//threshold of frequency to detect ads
+    private final int threshold = 14000;//threshold of frequency to detect ads
 
     /**
      * CONSTRUCTOR

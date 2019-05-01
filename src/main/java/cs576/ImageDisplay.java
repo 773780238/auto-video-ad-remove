@@ -39,7 +39,7 @@ public class ImageDisplay extends Application implements Runnable {
     static ArrayList<Integer> adsEnd = new ArrayList<>();
 
     public static void getAdsLocation() {
-        int adsMinimumLen = 300;
+        int adsMinimumLen = 200;
         for (int i = 0; i < arrayIsAds.length; i++) {
             if (arrayIsAds[i]) {
                 adsStart.add(i);
@@ -65,7 +65,7 @@ public class ImageDisplay extends Application implements Runnable {
     public static void processArrayIsAds() {
 
         boolean[] consecutiveArray = new boolean[arrayIsAds.length];
-        int windowSize = 150;
+        int windowSize = 200;
         int consecutive = 4;
         for (int i = 0; i < arrayIsAds.length; i++) {
 
@@ -223,6 +223,7 @@ public class ImageDisplay extends Application implements Runnable {
                 }
                 processArrayIsAds();
                 getAdsLocation();
+                System.out.println("::: result :::");
                 for (int i = 0; i < adsStart.size(); i++)
                     System.out.println("adsStart: " + adsStart.get(i));
 
