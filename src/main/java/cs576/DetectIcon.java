@@ -1,11 +1,9 @@
 package cs576;
 
-import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import javax.swing.*;
 
 import cs576.SIFTDetector;
 
@@ -60,12 +58,12 @@ public class DetectIcon {
                 } else if (ad2Pos == -1 && detector.detectIcon(imgOne, 2)) {
                     adFlag = 2;
                 }
-                //System.out.println("Frame: " + frame);
+                System.out.println("Frame: " + frame + "adFlag "+ adFlag);
 
                 //find the postion of the ad by detect a set of frame
                 if ((prevFlag == adFlag) && (adFlag == 1 || adFlag == 2)) {
                     logoCountDown--;
-                    dynamicInterval = 5;
+                    dynamicInterval = 3;
                     System.out.println(logoCountDown);
                     if (logoCountDown == 0) {
                         if (adFlag == 1) {
@@ -111,7 +109,7 @@ public class DetectIcon {
     public void calculateAd1Pos() {
         if (ad1Pos == -1 && ad1.size() > 1) {
             int lastIdx = ad1.size() - 1;
-            if (ad1.get(lastIdx) - ad1.get(lastIdx - 1) <= 15) {
+            if (ad1.get(lastIdx) - ad1.get(lastIdx - 1) <= 30) {
                 ad1Pos = ad1.get(lastIdx - 1);
             }
         }
@@ -120,7 +118,7 @@ public class DetectIcon {
     public void calculateAd2Pos() {
         if (ad2Pos == -1 && ad2.size() > 1) {
             int lastIdx = ad2.size() - 1;
-            if (ad2.get(lastIdx) - ad2.get(lastIdx - 1) <= 15) {
+            if (ad2.get(lastIdx) - ad2.get(lastIdx - 1) <= 30) {
                 ad2Pos = ad2.get(lastIdx - 1);
             }
         }

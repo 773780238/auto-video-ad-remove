@@ -67,14 +67,27 @@ public class SIFTDetector {
         } else {
             return false;
         }
-
+        if(senceDescriptors.empty()){
+            return false;
+        }
         List<MatOfDMatch> matches = new LinkedList<MatOfDMatch>();
-        descriptorMatcher.knnMatch(matchedDescriptor, senceDescriptors, matches, 2);
 
-        LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
-        findGoodMatches(matches, goodMatchesList, 0.75f);
+        if(choices == 1){
+            descriptorMatcher.knnMatch(matchedDescriptor, senceDescriptors, matches, 2);
 
-        return goodMatchesList.size() > 10;
+            LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
+            findGoodMatches(matches, goodMatchesList, 0.75f);
+            return goodMatchesList.size() > 10;
+        }else if (choices == 2){
+            descriptorMatcher.knnMatch(matchedDescriptor, senceDescriptors, matches, 2);
+
+            LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
+            findGoodMatches(matches, goodMatchesList, 0.65f);
+            return goodMatchesList.size() > 10;
+        }else{
+            return false;
+        }
+
     }
 
     private void findGoodMatches(List<MatOfDMatch> matches, LinkedList<DMatch> goodMatchesList, float nndrRatio) {

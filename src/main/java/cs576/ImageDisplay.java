@@ -25,7 +25,7 @@ public class ImageDisplay {
     static Histogram P = new Histogram(width * height);
     static BufferedImage imgOne;
 
-    private static String targetRGB = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\Videos\\data_test1AD.rgb";
+    private static String targetRGB = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\Videos\\data_test3AD.rgb";
     /**
      * Read Image RGB
      * Reads the image of given width and height at the given imgPath into the provided BufferedImage.
@@ -144,7 +144,7 @@ class WaveThread extends Thread {
     private Thread t;
     private Object lock;
     private String args[];
-    private static String targetWav = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\Videos\\data_test1AD.wav";
+    private static String targetWav = "C:\\Users\\zexin\\ideaProjects\\final-project\\resource\\Videos\\data_test3AD.wav";
 
     WaveThread(String args[], Object lock) {
         this.args = args;
