@@ -37,9 +37,9 @@ public class AppendAdSound {
             }
             //read the audio in sequence, drop extra Wav frame
             audioInputStream.read(bytesIn1);
-            audioInputStream.read(new byte[adsEnd.get(0) - adsStart.get(0)]);
+            audioInputStream.read(new byte[(adsEnd.get(0) - adsStart.get(0))*EXTERNAL_BUFFER_SIZE]);
             audioInputStream.read(bytesIn2);
-            audioInputStream.read(new byte[adsEnd.get(1) - adsStart.get(1)]);
+            audioInputStream.read(new byte[(adsEnd.get(1) - adsStart.get(1))*EXTERNAL_BUFFER_SIZE]);
 
             if (notEnd) {
                 audioInputStream.read(bytesIn3);
@@ -50,7 +50,7 @@ public class AppendAdSound {
             AudioInputStream audioSeg2 = new AudioInputStream(new ByteArrayInputStream(bytesIn2), srcFormat, bytesIn2.length);
             AudioInputStream audioSeg3 = new AudioInputStream(new ByteArrayInputStream(bytesIn3), srcFormat, bytesIn3.length);
             AudioInputStream adSeg1 = AudioSystem.getAudioInputStream(new File(ad1WavPath));
-            AudioInputStream adSeg2 = AudioSystem.getAudioInputStream(new File(ad1WavPath));
+            AudioInputStream adSeg2 = AudioSystem.getAudioInputStream(new File(ad2WavPath));
 
             //join audio
             AudioInputStream in = audioAppender(audioSeg1, adSeg1);

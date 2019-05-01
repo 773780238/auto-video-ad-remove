@@ -14,6 +14,7 @@ import java.awt.image.*;
 import java.io.*;
 import java.util.ArrayList;
 
+//$ProjectFileDir$\resource\Videos\data_test3.rgb $ProjectFileDir$\resource\Videos\data_test3.wav 13000
 
 public class ImageDisplay extends Application implements Runnable {
     private static String[] args;
@@ -215,7 +216,7 @@ public class ImageDisplay extends Application implements Runnable {
                     }
 
                     lock.notify();
-                    lock.wait();
+                    lock.wait(1000); //todo: warning unknown exception
 
 
                 }
@@ -257,7 +258,7 @@ public class ImageDisplay extends Application implements Runnable {
         controller.ivFX.setImage(wr);
         while (!controller.isTextPlay) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

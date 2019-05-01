@@ -21,8 +21,8 @@ public class AppendAd {
         AppendAdSound.writeSound(srAudioPath, ad1WavPath, adsStart, ad2WavPath, adsEnd);
     }
     public static void main(String[] args){
-        Integer [] a = {4492,8705};
-        Integer [] b = {4916,9999};
+        Integer [] a = {4502,8495};
+        Integer [] b = {4906,9999};
         append2AdByPos(new ArrayList<Integer>(Arrays.asList(a)),new ArrayList<Integer>((Arrays.asList(b))));
     }
 }

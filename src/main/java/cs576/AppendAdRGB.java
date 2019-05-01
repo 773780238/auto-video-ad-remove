@@ -14,7 +14,7 @@ public class AppendAdRGB {
     static int width = ImageDisplay.width;
     static int height = ImageDisplay.height;
     //    static int frameNum = ImageDisplay.frameNum;
-    static int frameNum = ImageDisplay.frameNum;
+    static int frameNum = 9004;
     static String RGBOutPath = AppendAd.RGBOutPath;
 
     public static void writeRGB(String imgPath, String ad1RGBPath, ArrayList<Integer> adsStart, String ad2RGBPath, ArrayList<Integer> adsEnd) {

@@ -38,6 +38,7 @@ public class DetectIcon {
 
     public void readAndDetect() {
         try {
+            System.out.println("Start detecting icons...");
             long frameLength = width * height * 3;
 
             File file = new File(imgPath);
