@@ -1,21 +1,21 @@
 package cs576.sound.playWave;
 
 
+import java.awt.*;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 
+import cs576.Controller;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.*;
 
+
 import java.util.*;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import java.util.List;
+import javax.sound.sampled.*;
 import javax.sound.sampled.DataLine.Info;
 
 /**
@@ -24,11 +24,11 @@ import javax.sound.sampled.DataLine.Info;
  * @author Giulio
  */
 public class PlaySound {
-    public static int countdown = 20;
+    public static int countdown = 10;
     public static int adsAudioComeIn = 0;
     private Object lock;
     private InputStream waveStream;
-
+    private Controller controller;
 
     //private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
     private final int EXTERNAL_BUFFER_SIZE = 3200;
@@ -38,22 +38,30 @@ public class PlaySound {
     /**
      * CONSTRUCTOR
      */
-    public PlaySound(InputStream waveStream, Object lock) {
+    public PlaySound(InputStream waveStream, Object lock, Controller controller) {
         this.waveStream = waveStream;
         this.lock = lock;
+        this.controller = controller;
     }
 
+    public void seek(InputStream input, int position)
+            throws IOException {
+        input.reset();
+        input.skip(position);
+    }
 
     public void play() throws PlayWaveException {
 
         AudioInputStream audioInputStream = null;
+
         try {
             //audioInputStream = AudioSystem.getAudioInputStream(this.waveStream);
 
             //add buffer for mark/reset support, modified by Jian
-            InputStream bufferedIn = new BufferedInputStream(this.waveStream);
-            audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+
+            audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(this.waveStream));
             //System.out.println("total length: "+audioInputStream.available());;
+
 
         } catch (UnsupportedAudioFileException e1) {
             throw new PlayWaveException(e1);
@@ -71,14 +79,17 @@ public class PlaySound {
         System.out.println(audioFormat.toString());
         // opens the audio channel
         SourceDataLine dataLine = null;
+
         try {
             dataLine = (SourceDataLine) AudioSystem.getLine(info);
+
             dataLine.open(audioFormat, this.EXTERNAL_BUFFER_SIZE);
         } catch (LineUnavailableException e1) {
             throw new PlayWaveException(e1);
         }
 
         // Starts the music :P
+
         dataLine.start();
 
         int readBytes = 0;
@@ -88,6 +99,13 @@ public class PlaySound {
         try {
             synchronized (lock) {
                 while (readBytes != -1) {
+                    //   if(controller.jumpButtonClicked){
+                    //      seek(audioInputStream,50000);
+
+                    //      controller.jumpButtonClicked = false;
+                    //  }
+
+
                     readBytes = audioInputStream.read(bytesIn, 0,
                             bytesIn.length);
                     if (readBytes >= 0) {
@@ -119,10 +137,13 @@ public class PlaySound {
 
                     List<Float> found = DFT.process(results, rate, resultC.length, 7);
                     double fd;
+                    double sum = 0;
                     if (found.isEmpty()) {
                         fd = -1;
                     } else {
                         fd = Collections.max(found);
+
+
                     }
 
                     if (fd > threshold) {
@@ -144,7 +165,7 @@ public class PlaySound {
         } catch (IOException e1) {
             throw new PlayWaveException(e1);
         } catch (InterruptedException e2) {
-
+            e2.printStackTrace();
         } finally {
             // plays what's left and and closes the audioChannel
             dataLine.drain();
