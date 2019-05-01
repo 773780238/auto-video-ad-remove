@@ -283,9 +283,9 @@ public class ImageDisplay extends Application implements Runnable {
         videoThread.start();
 
         try {
-
-            waveThread.join();
             videoThread.join();
+            waveThread.join();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -403,18 +403,22 @@ class VideoThread extends Thread {
         }
         ImageDisplay.imgOne = new BufferedImage(ImageDisplay.width, ImageDisplay.height, BufferedImage.TYPE_INT_RGB);
         ImageDisplay.readImageRGB(ImageDisplay.width, ImageDisplay.height, args[0], ImageDisplay.imgOne);
-        //iconDetectThread
-        IconDetectThread iconDetectThread = new IconDetectThread(args, lock);
-        iconDetectThread.start();
 
-
-        try {
-            iconDetectThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (ImageDisplay.isDetect)
+        if(ImageDisplay.isDetect){
+            //iconDetectThread
+            IconDetectThread iconDetectThread = new IconDetectThread(args, lock);
+            iconDetectThread.start();
             AppendAd.append2AdByPos(ImageDisplay.adsStart, ImageDisplay.adsEnd);
+
+            try {
+                iconDetectThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
         System.out.println("videoThread killed");
     }
 }

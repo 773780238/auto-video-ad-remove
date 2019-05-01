@@ -158,7 +158,7 @@ public class PlaySound {
                     ///liuzihui
                     ///liuzihui
                     lock.notify();
-                    lock.wait();
+                    lock.wait(1000);
                 }
                 lock.notify();//let the last frame or video exit
             }
