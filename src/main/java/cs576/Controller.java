@@ -28,6 +28,7 @@ public class Controller implements Initializable {
         }
 
     }
+    
 
     public void onJumpButtonClick() {
       /*  if(frameTextField.getText() != null ){
