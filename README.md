@@ -16,7 +16,7 @@
 see `pom.xml`
 
 ## Video player
-![](https://pic-1255943388.cos.ap-guangzhou.myqcloud.com/20190502014507.png)
+![](https://pic-1255943388.cos.ap-guangzhou.myqcloud.com/20190502015231.png)
 
 ## Run
 ```
